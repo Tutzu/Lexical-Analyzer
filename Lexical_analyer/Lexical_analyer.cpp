@@ -6,8 +6,6 @@
 #include "automata.h"
 //Preproccessor directives are resolved before the lexical analysis. Ignore that
 
-//Comments need to be removed
-
 class Analyzer
 {
 	Automata m_automata;
@@ -103,6 +101,3 @@ int main()
 
 	return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
