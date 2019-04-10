@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <exception>
+#include <stdexcept>
 
 #include "automata.h"
 //Preproccessor directives are resolved before the lexical analysis. Ignore that
@@ -76,7 +78,7 @@ void Analyzer::run()
 			if (it->getType() == wordType::ERROR)
 			{
 				std::cout << "ERROR on line " << line << ". Word parsed so far: "
-					<< *it->getStringPos() << std::endl;
+					<< it->getStringPos() << std::endl;
 				return;
 			}
 		}
@@ -89,12 +91,13 @@ int main()
 		Analyzer analyzer("data.in", "data.out");
 		analyzer.run();
 	}
-	catch (std::exception e)
+	catch (std::exception& e)
 	{
-		std::cout << "Program threw an exception: " << e.what() << std::endl;
-
+		std::cout << "Program failed: " << e.what() << std::endl;
+		
 		return -1;
 	}
+	
 
 	std::cout << "File analyzed successfully\n";
 

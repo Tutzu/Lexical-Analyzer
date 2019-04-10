@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <iostream>
-
+#include <cstdlib>
 #include <vector>
 #include <string>
 
@@ -16,7 +16,8 @@ extern const std::unordered_set<uint8_t> constant_states;
 
 extern std::vector<std::string> g_strings;
 
-std::vector<std::string>::const_iterator pushString(const std::string&);
+size_t pushString(const std::string&);
+const std::string getString(const size_t);
 
 enum wordType
 {
@@ -35,13 +36,13 @@ char getSymbol(const char&);
 class Token
 {
 	wordType m_type;
-	std::vector<std::string>::const_iterator m_stringPos;
+	size_t m_stringPos;
 
 public:
-	Token(wordType, std::vector<std::string>::const_iterator);
+	Token(wordType, size_t);
 
 	wordType getType() const;
-	std::vector<std::string>::const_iterator getStringPos() const;
+	size_t getStringPos() const;
 
 	friend std::ostream& operator<<(std::ostream& out, const Token&) noexcept;
 };

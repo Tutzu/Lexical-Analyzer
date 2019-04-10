@@ -1,14 +1,13 @@
 #include "automata.h"
 #include <iostream>
+#include <sstream>
+
 //------------------------Definitions
-
-
 
 const static std::unordered_set<uint8_t> keyword_states = 
 {
 	29, 56
 };
-
 
 const static std::unordered_set<uint8_t> operator_states = 
 {
@@ -30,19 +29,22 @@ static std::vector<std::string> g_strings;
 
 //------------------------Methods
 
-std::vector<std::string>::const_iterator pushString(const std::string& token)
+size_t pushString(const std::string& token)
 {
-	std::vector<std::string>::const_iterator result = std::find(g_strings.begin(), g_strings.end(), token);
+	auto result = std::find(g_strings.begin(), g_strings.end(), token);
 
-	if (result == g_strings.cend())
+	if (result == g_strings.end())
 	{
 		g_strings.push_back(token);
-		result = g_strings.cend() - 1;
+		result = g_strings.end() - 1;
 	}
 
-	std::cout << *result << std::endl;
+	return std::distance(g_strings.begin(), result);
+}
 
-	return result;
+const std::string getString(const size_t i)
+{
+	return g_strings[i];
 }
 
 char getSymbol(const char& x)
@@ -58,7 +60,7 @@ char getSymbol(const char& x)
 
 //------------------------Token
 
-Token::Token(wordType type, std::vector<std::string>::const_iterator stringPos) :
+Token::Token(wordType type, size_t stringPos) :
 	m_type(type), m_stringPos(stringPos)
 {
 
@@ -69,7 +71,7 @@ wordType Token::getType() const
 	return m_type;
 }
 
-std::vector<std::string>::const_iterator Token::getStringPos() const
+size_t Token::getStringPos() const
 {
 	return m_stringPos;
 }
@@ -81,7 +83,7 @@ std::ostream & operator<<(std::ostream & out, const Token& token) noexcept
 			(token.m_type == KEYWORD ? "{Keyord} " :
 			(token.m_type == SEPARATOR ? "{Separator} " :
 			(token.m_type == IDENTIFIER ? "{Identifier} " : "{Constant} ")))));
-	out << *(token.m_stringPos) << std::endl;
+	out << getString(token.m_stringPos) << std::endl;
 
 	return out;
 }
@@ -98,12 +100,6 @@ Node::Node(const std::vector<uint8_t>& config)
 	{
 		m_states.insert({ config[i], config[i + 1] });
 	}
-
-	/*for (auto it = m_states.begin(); it != m_states.end(); it++)
-	{
-		std::cout << it->first << " -> " << (int)it->second << std::endl;
-	}*/
-
 }
 
 uint8_t Node::getValue() const
@@ -148,12 +144,13 @@ Automata::Automata(): DUMMY_NODE(std::vector<uint8_t>{DUMMY_NODE_VALUE, 0})
 	for (auto it = automata_config.begin(); it != automata_config.end(); ++it)
 	{
 
-		if (it->size() % 2)
+		if (it->size() % 2 || it->at(0) < previousPos)
 		{
-			throw new std::exception("Automata config invalid on line " + it->size());
+			std::stringstream errMessage;
+			errMessage << "Automata config invalid on line " << std::distance(automata_config.begin(), it);
+
+			throw std::exception( errMessage.str().c_str() );
 		}
-		
-		auto smth = it -> at(0);
 
 		for (uint8_t i = previousPos + 1; i < it->at(0); i++)
 		{
@@ -193,6 +190,11 @@ wordType Automata::findTokenType(const uint8_t& state) const
 
 bool Automata::finishToken(const Node*& currentNode, std::vector<Token>& result, std::string& currentToken) const
 {	
+	if (currentToken.empty())
+	{
+		return true;
+	}
+
 	//Check if final state
 	if (!currentNode->getFinal())
 	{
@@ -206,8 +208,6 @@ bool Automata::finishToken(const Node*& currentNode, std::vector<Token>& result,
 
 	result.emplace_back(findTokenType(currentNode->getValue()), pushString(currentToken));
 
-	std::cout << *(result.cend() - 1);
-
 	currentToken.clear();
 	currentNode = &m_nodes[0];
 
@@ -219,13 +219,10 @@ std::vector<Token> Automata::getTokens(const std::string& input, bool& isComment
 	std::vector<Token> result;
 	std::string currentToken;
 
-	
 	size_t length = input.length();
 	
 	//If isComment is true, start directly from 252 (COMMENT_START_POS_MULTIPLE) (lambda transitions form 0 to 252)
 	const Node *currentNode = (isComment ? &m_nodes[COMMENT_START_POS_MULTIPLE] : &m_nodes[0]);
-
-	
 
 	//Discard starting spaces and tabs
 	size_t i = 0;
@@ -234,21 +231,45 @@ std::vector<Token> Automata::getTokens(const std::string& input, bool& isComment
 
 	for(; i < length; i++)
 	{
-		
-		//If there is a '/' and we're not in state 0, finish the token and start over from 0 (possible comment handling)
-		if ('/' == input[i] && 0 != currentNode->getValue())
-		{
-			if (false == finishToken(currentNode, result, currentToken))
-			{
-				break;
-			}
+		//If there is a '/' and we're not in state 0 or on COMMENT_START_POS_LINE, finish the token and start over from 0 (possible comment handling)
+		///if ('/' == input[i] && SLASH_POS != currentNode->getValue() && 0 != currentNode->getValue())
+		//{
+		//	if (false == finishToken(currentNode, result, currentToken))
+		//	{
+		//		break;
+		//	}
 
-			--i;
+		//	--i;
+
+		//	continue;
+		//}
+
+		uint8_t transition = currentNode->transition(input[i]);
+
+		if (COMMENT_START_POS_LINE == transition)
+		{
+			//We're done with this line, rest of it is a comment. Gotta finish the last token
+			currentToken.clear();
+			
+			break;
+		}
+
+		if (COMMENT_START_POS_MULTIPLE == transition ||
+			COMMENT_START_POS_MULTIPLE + 1 == transition)
+		{
+			currentNode = &m_nodes[transition];
+			isComment = true;
+
+			continue;
+		} 
+		else if (0 == transition)
+		{
+			currentNode = &m_nodes[transition]; //Start over
+			isComment = false;
+			currentToken.clear();
 
 			continue;
 		}
-
-		uint8_t transition = currentNode->transition(input[i]);
 
 		if (TRANSITION_ERROR == transition)	//No valid transition
 		{
@@ -272,29 +293,17 @@ std::vector<Token> Automata::getTokens(const std::string& input, bool& isComment
 			throw new std::exception("Config file is invalid. DUMMY_NODE reached.");
 		}
 
-		currentToken += input[i];
-		currentNode = &m_nodes[transition];
+		if (!isComment)
+		{
+			currentToken += input[i];
+		}
 
-		if (COMMENT_START_POS_MULTIPLE == transition)
-		{
-			isComment = true;
-		}
-		else if (0 == transition)
-		{
-			//If transition to 0 is made, multiple line comment is over
-			isComment = false;
-		}
+		currentNode = &m_nodes[transition];
 	}
 
 	if (!currentToken.empty())
 	{
-		(void)finishToken(currentNode, result, currentToken);
-	}
-
-	//TODO: FIXME
-	for (auto it = result.cbegin(); it != result.cend(); it++)
-	{
-		std::cout << *it << std::endl;
+		(void) finishToken(currentNode, result, currentToken);
 	}
 	
 	return result;

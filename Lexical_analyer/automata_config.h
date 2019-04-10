@@ -6,21 +6,21 @@ static constexpr size_t TRANSITION_POS = 2;
 
 static constexpr uint8_t TRANSITION_ERROR = 254;
 
+static constexpr uint8_t SLASH_POS = 23;
 static constexpr uint8_t COMMENT_START_POS_LINE = 126;
 static constexpr uint8_t COMMENT_START_POS_MULTIPLE = 127;
 
 static constexpr uint8_t DUMMY_NODE_VALUE = 255;
 
-#ifndef old_implementation
 const std::vector<std::vector<uint8_t>> automata_config{	//States must be defined in order.
 	//value	IsFinal {symbol state}+
-	{0, 0, '\'', 1, '"', 5, '0', 9, 'N', 10 , '+', 15, '-', 16, '<', 17, '>', 18, '*', 19, '/', 23, '%', 19, '~', 19, '^', 19, '!', 19, '=', 19, '&', 21, '|', 22, 'W', 25, 'a', 26, 'b', 30, 'c', 35, 'd', 50, 'e', 60, 'f', 69, 'g', 74, 'i', 77, 'l', 79, 'r', 82, 's', 91, 't', 110, 'u', 115, 'v', 118, 'w', 124, ',', 125, ';', 125, '.', 125, '(', 125, ')', 125, '[', 125, ']', 125, '{', 125, '}', 125},
+	{0, 0, '\'', 1, '"', 5, '0', 9, 'N', 10 , '+', 15, '-', 16, '<', 17, '>', 18, '*', 19, '%', 19, '~', 19, '^', 19, '!', 19, '=', 19, '&', 21, '|', 22, '/', 23, 'W', 25, 'a', 26, 'b', 30, 'c', 35, 'd', 50, 'e', 60, 'f', 69, 'g', 74, 'i', 77, 'l', 79, 'r', 82, 's', 91, 't', 110, 'u', 115, 'v', 118, 'w', 124, ',', 125, ';', 125, '.', 125, '(', 125, ')', 125, '[', 125, ']', 125, '{', 125, '}', 125},
 	{1, 0, '$', 2, '\\', 3 },
 	{2, 0, '\'', 4},
 	{3, 0, '$', 2},
 	{4, 1},	// constant final state
 	{5, 0, '\\', 6, '$', 7},
-	{6, 0, '$', 7},
+	{6, 0, '$', 7 },
 	{7, 0, '\\', 6, '$', 7, '"', 8},
 	{8, 1},	//constant final state
 	{9, 1, '.', 11, 'N', 12, 'x', 13, 'X', 13},	//constant final state
@@ -184,4 +184,3 @@ const std::vector<std::vector<uint8_t>> automata_config{	//States must be define
 	//{DUMMY_NODE_VALUE, 0}
 	//255(DUMMY_NODE_VALUE) is reserved.
 };
-#endif
