@@ -41,7 +41,6 @@ const std::vector<std::vector<uint8_t>> automata_config{	//States must be define
 	{22, 1, '=', 20, '|', 20},	// |
 	{23, 1, '=', 20, '/', COMMENT_START_POS_LINE, '*', COMMENT_START_POS_MULTIPLE},
 	//Identifiers
-	//{24, 1, 'W', 25},
 	{25, 1, 'W', 25, 'N', 25},
 	//Keywords
 	//auto

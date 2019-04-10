@@ -3,8 +3,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <iostream>
-#include <cstdlib>
-#include <vector>
 #include <string>
 
 #include "automata_config.h"

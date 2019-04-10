@@ -1,5 +1,4 @@
 #include "automata.h"
-#include <iostream>
 #include <sstream>
 
 //------------------------Definitions
@@ -63,7 +62,6 @@ char getSymbol(const char& x)
 Token::Token(wordType type, size_t stringPos) :
 	m_type(type), m_stringPos(stringPos)
 {
-
 }
 
 wordType Token::getType() const
@@ -199,7 +197,6 @@ bool Automata::finishToken(const Node*& currentNode, std::vector<Token>& result,
 	if (!currentNode->getFinal())
 	{
 		//not ok, push token to result and terminate
-		//currentToken.pop_back();
 
 		result.emplace_back(ERROR, pushString(currentToken));
 
@@ -231,19 +228,6 @@ std::vector<Token> Automata::getTokens(const std::string& input, bool& isComment
 
 	for(; i < length; i++)
 	{
-		//If there is a '/' and we're not in state 0 or on COMMENT_START_POS_LINE, finish the token and start over from 0 (possible comment handling)
-		///if ('/' == input[i] && SLASH_POS != currentNode->getValue() && 0 != currentNode->getValue())
-		//{
-		//	if (false == finishToken(currentNode, result, currentToken))
-		//	{
-		//		break;
-		//	}
-
-		//	--i;
-
-		//	continue;
-		//}
-
 		uint8_t transition = currentNode->transition(input[i]);
 
 		if (COMMENT_START_POS_LINE == transition)
