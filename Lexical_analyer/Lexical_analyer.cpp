@@ -22,25 +22,20 @@ public:
 
 Analyzer::Analyzer(const std::string input, const std::string output):m_isComment(0)
 {
-	try {
-		in.open(input);
-	}
-	catch (...)
+	in.open(input);
+
+	if(!in.is_open())
 	{
-		std::cout << "Could not open input file.\n";
-		
-		return;
+		throw std::exception("Could not open input file.\n");
 	}
 
-	try {
-		out.open(output);
-	}
-	catch (...)
+	out.open(output);
+
+	if(!out.is_open())
 	{
-		std::cout << "Could not open output file.\n";
 		in.close();
 
-		return;
+		throw std::exception( "Could not open output file.\n") ;
 	}
 }
 
@@ -71,7 +66,8 @@ void Analyzer::run()
 
 		for (auto it = res.cbegin(); it != res.cend(); it++)
 		{
-			std::cout << *it << std::endl;
+//			std::cout << *it << std::endl;
+			out << *it << std::endl;
 
 			if (it->getType() == wordType::ERROR)
 			{

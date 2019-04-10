@@ -1,0 +1,14 @@
+{Identifier} printf
+
+{Separator} (
+
+{Constant} "Hello !"
+
+{Keyord} return
+
+{Constant} 0
+
+{Separator} ;
+
+{Separator} }
+
