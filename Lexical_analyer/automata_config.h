@@ -177,7 +177,7 @@ const std::vector<std::vector<uint8_t>> automata_config{	//States must be define
 	//comment handling
 	{COMMENT_START_POS_LINE, 1, '$', COMMENT_START_POS_LINE},
 	{COMMENT_START_POS_MULTIPLE, 1, '$', COMMENT_START_POS_MULTIPLE, '*', COMMENT_START_POS_MULTIPLE + 1},
-	{COMMENT_START_POS_MULTIPLE + 1, 1, '$', COMMENT_START_POS_MULTIPLE, '/', 0}
+	{COMMENT_START_POS_MULTIPLE + 1, 1, '*', COMMENT_START_POS_MULTIPLE + 1, '$', COMMENT_START_POS_MULTIPLE, '/', 0 }
 
 	//254(TRANSITION_ERROR) is reserved.
 	//{DUMMY_NODE_VALUE, 0}

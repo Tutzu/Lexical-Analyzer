@@ -66,16 +66,21 @@ void Analyzer::run()
 
 		for (auto it = res.cbegin(); it != res.cend(); it++)
 		{
-//			std::cout << *it << std::endl;
-			out << *it << std::endl;
+			std::cout << *it << std::endl;
+//			out << *it << std::endl;
 
 			if (it->getType() == wordType::ERROR)
 			{
 				std::cout << "ERROR on line " << line << ". Word parsed so far: "
-					<< it->getStringPos() << std::endl;
+					<< getString( it->getStringPos() ) << std::endl;
 				return;
 			}
 		}
+	}
+
+	if (m_isComment)	//Multiple line comment at end of file is not ended. Error.
+	{
+		throw std::exception("Multiple-line comment did not end.");
 	}
 }
 
@@ -91,7 +96,6 @@ int main()
 		
 		return -1;
 	}
-	
 
 	std::cout << "File analyzed successfully\n";
 
